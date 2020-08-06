@@ -1,0 +1,18 @@
+{
+  "name": "cinephobe-cal",
+  "version": "1.0.0",
+  "description": "google calendar api driven bootstrap timetable for cinephobe.tv",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bootstrap": "^4.5.1"
+  },
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-sass": "^4.1.0"
+  }
+}
