@@ -52,6 +52,7 @@ $(() => {
 
 
     let baseURL = `${window.location.protocol}//${window.location.host}/${window.location.pathname}`.replace(/index\.html/, '').replace(/\/\/$/, '/');
+    
 
     $('#embed').val(
         $('#embed').val()

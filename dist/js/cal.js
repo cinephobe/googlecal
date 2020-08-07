@@ -1,5 +1,13 @@
 (() => {
 
+    let env = 'debug';
+
+    try {
+        //attempt to access embedding document to
+        let a = window.parent.hash;
+    } catch (exception) {
+        env = 'prod';
+    }
 
     let matches = window.location.hash.match(/c=([\d\w@\.]+);a=([\d\w@\.]+)/),
         calendarId = matches && matches.length === 3 ? matches[1] : false,
@@ -17,7 +25,11 @@
         cachedDebugLocale = false,
         cachedDebugTimezone = false,
         getDebugLocale = () => {
-            if(false !== cachedDebugLocale){
+            if (env === 'prod') {
+                return undefined;
+            }
+
+            if (false !== cachedDebugLocale) {
                 return cachedDebugLocale;
             }
 
@@ -38,11 +50,15 @@
             return cachedDebugLocale;
         },
         injectDebugTimezone = options => {
-            if(false !== cachedDebugTimezone && null === cachedDebugTimezone){
+            if (env === 'prod') {
                 return options;
             }
 
-            if(false !== cachedDebugTimezone && null !== cachedDebugTimezone){
+            if (false !== cachedDebugTimezone && null === cachedDebugTimezone) {
+                return options;
+            }
+
+            if (false !== cachedDebugTimezone && null !== cachedDebugTimezone) {
                 options.timeZone = cachedDebugTimezone;
                 return options;
             }
@@ -102,13 +118,18 @@
 
             //force offset on date for debug purposes
             let timeZoneObject = injectDebugTimezone({});
-            if(timeZoneObject.timeZone){
-                let timezoneDateString = new Date().toLocaleDateString('de-DE', {timeZone : timeZoneObject.timeZone, minute : '2-digit', hour : '2-digit', timeZoneName : 'short'}),
+            if (timeZoneObject.timeZone) {
+                let timezoneDateString = new Date().toLocaleDateString('de-DE', {
+                        timeZone: timeZoneObject.timeZone,
+                        minute: '2-digit',
+                        hour: '2-digit',
+                        timeZoneName: 'short'
+                    }),
                     m = timezoneDateString.match(/^(\d+)\.(\d+)\.(\d{4}), (\d\d)\:(\d\d) ([\w\+\-]+)/),
                     offsetDate = new Date(`${m[3]}-${m[2]}-${m[1]} ${m[4]}:${m[5]}`),
                     diffInHours = Math.round((+offsetDate - +(new Date())) / (1000 * 60 * 60));
 
-                date = new Date( +(date) + diffInHours * 1000 * 60 * 60);
+                date = new Date(+(date) + diffInHours * 1000 * 60 * 60);
             }
 
             return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
