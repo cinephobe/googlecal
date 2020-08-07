@@ -29,7 +29,7 @@ $(() => {
             offsetDate = new Date(`${m[3]}-${m[2]}-${m[1]} ${m[4]}:${m[5]}`),
             diffInHours = Math.round((+offsetDate - +localDate) / (1000 * 60 * 60));
 
-        $(`<option value="${timezone}" ${matchedDebugTimeZone === timezone ? 'selected="selected"':''}>${timezone} (${m[6]}) (diff to Local: ${diffInHours} hours)</option>`).appendTo($('#debug_tz'));
+        $(`<option value="${timezone}" ${matchedDebugTimeZone === timezone ? 'selected="selected"':''}>${timezone} (${m[6]}) (diff to local: ${diffInHours} hours)</option>`).appendTo($('#debug_tz'));
     }
 
     $('#generate-button').on('click', function (e) {
