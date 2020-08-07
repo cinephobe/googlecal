@@ -268,25 +268,25 @@
 
         $(`<div class="container mx-0">\
                 <div class="row mt-2">\
-                    <div class="col-sm-2 col-xl-1 col-12 d-none d-sm-block">\
+                    <div class="col-12 col-sm-2 col-lg-1 d-none d-sm-block">\
                         <strong class="text-info">When</strong>\
                     </div>
-                    <div class="col-sm-10  col-xl-11 col-12">\
+                    <div class="col-12 col-sm-10 col-lg-11">\
                         ${getFromToString(item.start.dateTime, item.end.dateTime)}\
                     </div>\
                 </div>\
                 <div class="row my-2 ${item.description ? '' : 'd-none'}">\
-                    <div class="col-sm-2 col-xl-1 col-12">\
+                    <div class="col-12 col-sm-2 col-lg-1">\
                         
                     </div>
-                    <div class="col-sm-10 col-xl-11 col-12">\
+                    <div class="col-12 col-sm-10 col-lg-11">\
                         ${item.description}\
                     </div>\
                 </div>\
                 <div class="row my-2">\
-                    <div class="col-sm-2 col-xl-1 col-12">\
+                    <div class="col-12 col-sm-2 col-lg-1">\
                     </div>\
-                    <div class="col-sm-10 col-xl-11 col-12">\
+                    <div class="col-12 col-sm-10 col-lg-11">\
                         <a class="mr-md-3" target="_blank" href="${item.htmlLink}">read more</a>\
                         <a class="mr-md-3" target="_blank" href="${item.htmlLink.replace(/.*eid=/, 'https://calendar.google.com/calendar/b/1/r/eventedit/copy/')}">copy to my calendar</a>\
                     </div>\
@@ -330,8 +330,8 @@
                     <div class="card-header bg-white border-bottom-0" id="heading-${item.id}" data-startsat="${item.start.dateTime}" data-endsat="${item.end.dateTime}">\
                         <div class="mb-0 container py-2 mx-0">\
                             <div class="row event-toggle-bar" data-toggle="collapse" data-target="#collapse-${item.id}" aria-expanded="false" aria-controls="collapse-${item.id}">\
-                                <div class="col-3 col-sm-2 col-xl-1  text-truncate">${getTimeLabel(item.start.dateTime)}</div>\
-                                <div class="col-9 col-sm-10 col-xl-11  text-truncate">${item.summary}</div>\
+                                <div class="col-3 col-sm-2 col-lg-1 text-truncate">${getTimeLabel(item.start.dateTime)}</div>\
+                                <div class="col-9 col-sm-10 col-lg-11 text-truncate">${item.summary}</div>\
                             </div>\
                         </div>\
                     </div>\
