@@ -1,5 +1,6 @@
 (() => {
 
+
     let matches = window.location.hash.match(/c=([\d\w@\.]+);a=([\d\w@\.]+)/),
         calendarId = matches && matches.length === 3 ? matches[1] : false,
         apiKey = matches && matches.length === 3 ? matches[2] : false,
@@ -12,7 +13,59 @@
             past: [],
             future: []
         },
-        weeksToLoad = 2,
+        weeksToLoad = 6,
+        cachedDebugLocale = false,
+        cachedDebugTimezone = false,
+        getDebugLocale = () => {
+            if(false !== cachedDebugLocale){
+                return cachedDebugLocale;
+            }
+
+            let parentUrl = window.parent && window.parent.location ? window.parent.location : null,
+                localeMatches;
+
+            cachedDebugLocale = undefined;
+
+            if (!parentUrl) {
+                return cachedDebugLocale;
+            }
+
+            localeMatches = String(parentUrl).match(/debug_locale=([\w@]+[\-\w]*);?/);
+            if (localeMatches && localeMatches.length === 2) {
+                cachedDebugLocale = localeMatches[1];
+            }
+
+            return cachedDebugLocale;
+        },
+        injectDebugTimezone = options => {
+            if(false !== cachedDebugTimezone && null === cachedDebugTimezone){
+                return options;
+            }
+
+            if(false !== cachedDebugTimezone && null !== cachedDebugTimezone){
+                options.timeZone = cachedDebugTimezone;
+                return options;
+            }
+
+            let parentUrl = window.parent && window.parent.location ? window.parent.location : null,
+                timezoneMatches;
+
+            cachedDebugTimezone = null;
+
+            if (!parentUrl) {
+                return options;
+            }
+
+            timezoneMatches = String(parentUrl).match(/debug_timezone=([\w\/]+);?/);
+
+            if (timezoneMatches && timezoneMatches.length === 2) {
+                cachedDebugTimezone = timezoneMatches[1];
+                options.timeZone = timezoneMatches[1];
+            }
+
+            return options;
+
+        },
         getIso8601Date = (diffInDays, baseDate, time) => {
             baseDate = baseDate || new Date();
             let date = (new Date(+baseDate + (diffInDays * 24 * 60 * 60 * 1000))).toISOString();
@@ -31,39 +84,59 @@
         },
         getDateAccordionLabel = date => {
             date = new Date(date);
-            return date.toLocaleDateString(undefined, {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'})
+            return date.toLocaleDateString(getDebugLocale(), injectDebugTimezone({
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }))
         },
         getTimeLabel = date => {
             date = new Date(date);
-            return date.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'});
+            return date.toLocaleTimeString(getDebugLocale(), injectDebugTimezone({hour: '2-digit', minute: '2-digit'}));
         },
         getDayIdStringFromDate = date => {
             if (String(date) === date) {
                 date = new Date(date);
             }
+
+            //force offset on date for debug purposes
+            let timeZoneObject = injectDebugTimezone({});
+            if(timeZoneObject.timeZone){
+                let timezoneDateString = new Date().toLocaleDateString('de-DE', {timeZone : timeZoneObject.timeZone, minute : '2-digit', hour : '2-digit', timeZoneName : 'short'}),
+                    m = timezoneDateString.match(/^(\d+)\.(\d+)\.(\d{4}), (\d\d)\:(\d\d) ([\w\+\-]+)/),
+                    offsetDate = new Date(`${m[3]}-${m[2]}-${m[1]} ${m[4]}:${m[5]}`),
+                    diffInHours = Math.round((+offsetDate - +(new Date())) / (1000 * 60 * 60));
+
+                date = new Date( +(date) + diffInHours * 1000 * 60 * 60);
+            }
+
             return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
         },
         getFromToString = (start, end) => {
             start = new Date(start);
             end = new Date(end);
 
-            let startString = start.toLocaleDateString(undefined, {
+            let startString = start.toLocaleDateString(getDebugLocale(), injectDebugTimezone({
                 weekday: 'short',
                 month: 'long',
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit'
-            });
-            let endString = end.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'});
+            }));
+            let endString = end.toLocaleTimeString(getDebugLocale(), injectDebugTimezone({
+                hour: '2-digit',
+                minute: '2-digit'
+            }));
 
             if (start.getDate() !== end.getDate()) {
-                endString = end.toLocaleDateString(undefined, {
+                endString = end.toLocaleDateString(getDebugLocale(), injectDebugTimezone({
                     weekday: 'short',
                     month: 'long',
                     day: 'numeric',
                     hour: '2-digit',
                     minute: '2-digit'
-                });
+                }));
             }
 
             return startString + ' - ' + endString;
@@ -174,25 +247,25 @@
 
         $(`<div class="container mx-0">\
                 <div class="row mt-2">\
-                    <div class="col-md-2 col-xl-1 col-12">\
+                    <div class="col-sm-2 col-xl-1 col-12 d-none d-sm-block">\
                         <strong class="text-info">When</strong>\
                     </div>
-                    <div class="col-md-10  col-xl-11 col-12">\
+                    <div class="col-sm-10  col-xl-11 col-12">\
                         ${getFromToString(item.start.dateTime, item.end.dateTime)}\
                     </div>\
                 </div>\
                 <div class="row my-2 ${item.description ? '' : 'd-none'}">\
-                    <div class="col-md-2 col-xl-1 col-12">\
+                    <div class="col-sm-2 col-xl-1 col-12">\
                         
                     </div>
-                    <div class="col-md-10 col-xl-11 col-12">\
+                    <div class="col-sm-10 col-xl-11 col-12">\
                         ${item.description}\
                     </div>\
                 </div>\
                 <div class="row my-2">\
-                    <div class="col-md-2 col-xl-1 col-12">\
+                    <div class="col-sm-2 col-xl-1 col-12">\
                     </div>\
-                    <div class="col-md-10 col-xl-11 col-12">\
+                    <div class="col-sm-10 col-xl-11 col-12">\
                         <a class="mr-md-3" target="_blank" href="${item.htmlLink}">read more</a>\
                         <a class="mr-md-3" target="_blank" href="${item.htmlLink.replace(/.*eid=/, 'https://calendar.google.com/calendar/b/1/r/eventedit/copy/')}">copy to my calendar</a>\
                     </div>\
@@ -236,8 +309,8 @@
                     <div class="card-header bg-white border-bottom-0" id="heading-${item.id}" data-startsat="${item.start.dateTime}" data-endsat="${item.end.dateTime}">\
                         <div class="mb-0 container py-2 mx-0">\
                             <div class="row event-toggle-bar" data-toggle="collapse" data-target="#collapse-${item.id}" aria-expanded="false" aria-controls="collapse-${item.id}">\
-                                <div class="col-3 col-md-2 col-xl-1">${getTimeLabel(item.start.dateTime)}</div>\
-                                <div class="col-9 col-md-10 col-xl-11">${item.summary}</div>\
+                                <div class="col-3 col-sm-2 col-xl-1  text-truncate">${getTimeLabel(item.start.dateTime)}</div>\
+                                <div class="col-9 col-sm-10 col-xl-11  text-truncate">${item.summary}</div>\
                             </div>\
                         </div>\
                     </div>\
@@ -260,11 +333,14 @@
 
         if (!initialScroll) {
             initialScroll = true;
-            $('#heading-day-' + getDayIdStringFromDate(new Date())).get()[0].scrollIntoView();
+            let currentDay = $('#heading-day-' + getDayIdStringFromDate(new Date()));
+            if (currentDay.length > 0) {
+                currentDay.get()[0].scrollIntoView();
+            }
 
             //if scroll is at bottom, offset 20px if this happens to enable scrolling
             if ($('body').prop('scrollHeight') - $(window).height() === $(window).scrollTop()) {
-                $(window.scrollBy({top : -20}))
+                $(window.scrollBy({top: -20}))
             }
 
             markCurrentEventActive();
@@ -292,9 +368,9 @@
                 }
 
                 if ($('body').prop('scrollHeight') - $(window).height() === $(window).scrollTop()) {
-                    $(window.scrollBy({top : -20}))
-                }else{
-                    $(window.scrollBy({top : 20}))
+                    $(window.scrollBy({top: -20}))
+                } else {
+                    $(window.scrollBy({top: 20}))
                 }
             }
         }

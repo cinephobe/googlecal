@@ -31,12 +31,37 @@
             </div>
         </div>
         <div class="col-6">
-
             <div class="form-group">
                 <label for="api-key">API Key</label>
                 <input type="text" class="form-control form-control-lg" id="api-key">
             </div>
         </div>
+
+        <div class="col-6">
+            <div class="form-group">
+                <label for="debug_locale" class="text-danger">DEBUG Locale</label>
+                <select name="" id="debug_locale" class="form-control form-control-lg">
+                    <option value="">Automatic - determined by your browser</option>
+                </select>
+                <small>Will only be used in this view for testing purposes, wont be attached to embed code!
+                    Some may not work or break the embed, depending on your browser's support for the selected locale.
+                    This wont happen with the real embed as the browser would pick a supported locale.
+                    The list is taken from some mozilla repo. There are more locales but I think it suffices
+                for superficial testing purposes!</small>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="form-group">
+                <label for="debug_tz" class="text-danger">DEBUG Timezone</label>
+                <select name="" id="debug_tz" class="form-control form-control-lg">
+                    <option value="">Automatic - determined by your browser</option>
+                </select>
+                <small>Will only be used in this view for testing purposes, wont be attached to embed code!
+                This may be a bit shaky since offsets and local offsets are not super accurate but it should give a good
+                indication of how the calendar may look for people in different places!</small>
+            </div>
+        </div>
+
         <div class="col-12">
             <div class="form-group text-center">
                 <button class="btn btn-primary btn-lg" id="generate-button">Generate embed code</button>
@@ -69,7 +94,8 @@
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.1/js/bootstrap.min.js" integrity="sha384-XEerZL0cuoUbHE4nZReLT7nx9gQrQreJekYhJD9WNWhH8nEW+0c5qq7aIo2Wl30J" crossorigin="anonymous"></script>
 
-
+<script src="js/locales.js"></script>
+<script src="js/timezones.js"></script>
 <script src="js/generator.js"></script>
 
 
