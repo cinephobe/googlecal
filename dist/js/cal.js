@@ -280,7 +280,7 @@
                         
                     </div>
                     <div class="col-12 col-sm-10 col-lg-11">\
-                        ${item.description}\
+                        ${item.description.replace(/href=/,'target="_blank" href=')}\
                     </div>\
                 </div>\
                 <div class="row my-2">\
