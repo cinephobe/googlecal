@@ -356,7 +356,7 @@
             initialScroll = true;
             let currentDay = $('#heading-day-' + getDayIdStringFromDate(new Date()));
             if (currentDay.length > 0) {
-                document.documentElement.scrollTop = currentDay.get()[0].offsetTop;
+                document.documentElement.scrollTop = currentDay.offset().top;
             }
 
             //if scroll is at bottom, offset 20px if this happens to enable scrolling
