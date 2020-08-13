@@ -13,8 +13,6 @@
         calendarId = matches && matches.length === 3 ? matches[1] : false,
         apiKey = matches && matches.length === 3 ? matches[2] : false,
         initialScroll = false,
-        upperBoundDate = null,
-        lowerBoundDate = null,
         ignoreScrolling = true,
         attachPosition = 'bottom',
         datesLoaded = {
@@ -202,24 +200,17 @@
             }
 
             if (st === 0) {
+                let maxDate = new Date($('[data-startsat]').first().data('startsat')),
+                    max = maxDate.toISOString(),
+                    min = new Date(+maxDate - weeksToLoad * 7 * 24 * 60 * 60 * 1000).toISOString();
 
-                if (datesLoaded.past.indexOf(lowerBoundDate) > -1) {
+                if (datesLoaded.past.indexOf(max) > -1) {
                     return;
                 }
 
-                ignoreScrolling = true;
-                datesLoaded.past.push(lowerBoundDate);
-
                 attachPosition = 'top';
-                let min = lowerBoundDate,
-                    max = new Date(lowerBoundDate),
-                    i;
-
-                max = (new Date(+new Date(max) - 1000)).toISOString();
-
-                for (i = 0; i < weeksToLoad; i++) {
-                    min = getLastMondayIsoDate(new Date(min));
-                }
+                ignoreScrolling = true;
+                datesLoaded.past.push(max);
 
                 $.ajax({
                     url: getEventsUrl(apiKey, calendarId, min, max),
@@ -228,29 +219,17 @@
 
             } else if (sh - h === st) {
 
-                if (datesLoaded.future.indexOf(upperBoundDate) > -1) {
+                let minDate = new Date($('[data-endsat]').last().data('endsat')),
+                    min = minDate.toISOString(),
+                    max = new Date(+minDate + weeksToLoad * 7 * 24 * 60 * 60 * 1000).toISOString();
+
+                if (datesLoaded.future.indexOf(min) > -1) {
                     return;
                 }
 
-                ignoreScrolling = true;
-                datesLoaded.future.push(upperBoundDate);
-
                 attachPosition = 'bottom';
-
-                let min = upperBoundDate,
-                    max = new Date(upperBoundDate),
-                    i;
-
-
-                min = (new Date(+new Date(min) + 1000)).toISOString();
-
-                for (i = 0; i < weeksToLoad; i++) {
-                    max = getNextSundayIsoDate(new Date(max));
-                }
-
-                //todo use better dates here to avoid strange edge cases and too late min dates for scrolling to bottom
-                //#boundfails
-                min = $('[data-actualdate]').last().data('actualdate');
+                ignoreScrolling = true;
+                datesLoaded.future.push(min);
 
                 $.ajax({
                     url: getEventsUrl(apiKey, calendarId, min, max),
@@ -309,7 +288,7 @@
             if (dayAccordion.length === 0) {
                 let elem = $(`<div data-class="accordion" class="is-new" id="${targetAccordionId}">\
                             <div class="card border-top-0">\
-                                <div class="card-header border-bottom-0" id="heading-day-${dayString}" data-hashtag="#boundfails" data-actualdate="${getIso8601Date(0, new Date(item.start.dateTime), '23:59:59')}">\
+                                <div class="card-header border-bottom-0" id="heading-day-${dayString}">\
                                     <h6 class="mb-0 py-2 pl-3">\
                                         ${getDateAccordionLabel(item.start.dateTime)}\
                                     </h6>\
@@ -377,11 +356,6 @@
             markCurrentEventActive();
             setInterval(markCurrentEventActive, 5 * 60 * 1000);
 
-            //bound dates should not be virtual dates but actual dates from content to avoid edge cases
-            //#boundfails
-
-            lowerBoundDate = getLastMondayIsoDate();
-            upperBoundDate = getNextSundayIsoDate();
             setTimeout(() => {
                 $(document).on('scroll', handleScroll);
             }, 255);
@@ -389,16 +363,12 @@
 
             //set dates from response here!
             if (attachPosition === 'top') {
-                if (data.items.length > 0) {
-                    lowerBoundDate = data.items[0].start.dateTime;
-                } else {
+                if (data.items.length === 0) {
                     $('<div class="alert alert-info text-center my-2 py-2">no earlier events found</div>').prependTo('#calendar-box');
                 }
                 window.scrollTo({top: 20, left: 0});
             } else {
-                if (data.items.length > 0) {
-                    upperBoundDate = data.items[data.items.length - 1].end.dateTime;
-                } else {
+                if (data.items.length === 0) {
                     $('<div class="alert alert-info text-center my-2 py-2">no later events found</div>').appendTo('#calendar-box');
                 }
 
