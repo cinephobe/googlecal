@@ -241,11 +241,16 @@
                     max = new Date(upperBoundDate),
                     i;
 
+
                 min = (new Date(+new Date(min) + 1000)).toISOString();
 
                 for (i = 0; i < weeksToLoad; i++) {
                     max = getNextSundayIsoDate(new Date(max));
                 }
+
+                //todo use better dates here to avoid strange edge cases and too late min dates for scrolling to bottom
+                //#boundfails
+                min = $('[data-actualdate]').last().data('actualdate');
 
                 $.ajax({
                     url: getEventsUrl(apiKey, calendarId, min, max),
@@ -280,7 +285,7 @@
                         
                     </div>
                     <div class="col-12 col-sm-10 col-lg-11">\
-                        ${item.description.replace(/href=/,'target="_blank" href=')}\
+                        ${(item.description || '').replace(/href=/,'target="_blank" href=')}\
                     </div>\
                 </div>\
                 <div class="row my-2">\
@@ -304,7 +309,7 @@
             if (dayAccordion.length === 0) {
                 let elem = $(`<div data-class="accordion" class="is-new" id="${targetAccordionId}">\
                             <div class="card border-top-0">\
-                                <div class="card-header border-bottom-0" id="heading-day-${dayString}">\
+                                <div class="card-header border-bottom-0" id="heading-day-${dayString}" data-hashtag="#boundfails" data-actualdate="${getIso8601Date(0, new Date(item.start.dateTime), '23:59:59')}">\
                                     <h6 class="mb-0 py-2 pl-3">\
                                         ${getDateAccordionLabel(item.start.dateTime)}\
                                     </h6>\
@@ -326,7 +331,12 @@
                 dayAccordion.on('shown.bs.collapse', loadDetails)
             }
 
-            $(`<div class="card border-top-0">\
+            if($(`#event-${item.id}`).length > 0){
+                //this should not happen
+                continue;
+            }
+
+            $(`<div class="card border-top-0" id="event-${item.id}">\
                     <div class="card-header bg-white border-bottom-0" id="heading-${item.id}" data-startsat="${item.start.dateTime}" data-endsat="${item.end.dateTime}">\
                         <div class="mb-0 container py-2 mx-0">\
                             <div class="row event-toggle-bar" data-toggle="collapse" data-target="#collapse-${item.id}" aria-expanded="false" aria-controls="collapse-${item.id}">\
@@ -366,6 +376,10 @@
 
             markCurrentEventActive();
             setInterval(markCurrentEventActive, 5 * 60 * 1000);
+
+            //bound dates should not be virtual dates but actual dates from content to avoid edge cases
+            //#boundfails
+
             lowerBoundDate = getLastMondayIsoDate();
             upperBoundDate = getNextSundayIsoDate();
             setTimeout(() => {
